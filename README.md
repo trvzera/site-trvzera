@@ -1,3 +1,10 @@
+> **EN:** Personal website (trvzera.com.br): Linktree-style hub, social links, interests, and affiliate product pages. Built with static HTML, CSS, and JavaScript.
+>
+> *The rest of this README is in Brazilian Portuguese (pt-BR).*
+
+
+---
+
 # trvzera. — Site pessoal
 
 Site pessoal em produção em **[trvzera.com.br](https://trvzera.com.br)**. Foi pensado e desenvolvido por mim como um hub central: no estilo de um Linktree, reúne minhas redes sociais em um só lugar; além disso, apresenta quem sou, o que gosto e uma vitrine de produtos com links de afiliado para compra.
@@ -13,4 +20,3 @@ Na **página inicial** há um perfil com banner, avatar e atalhos para Instagram
 | Produtos | `produtos/index.html` | Catálogo de afiliados por categoria |
 
 O site é estático (HTML, CSS e JavaScript), com tema claro/escuro, transições entre páginas e layout responsivo. Os links de afiliado usados na loja ficam referenciados em `produtos/links.txt` para facilitar manutenção.
-
