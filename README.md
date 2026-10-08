@@ -1,12 +1,14 @@
 # trvzera. — Meu espaço pessoal
 
-Site estático, em uma única página, com redes sociais, portfólio, setup, apresentação pessoal e gostos. HTML, CSS e JavaScript, sem dependências de build.
+Site estático, em uma única página, com redes sociais, portfólio, setup, apresentação pessoal e gostos. HTML, CSS e JavaScript, com arquivos compactados já incluídos no projeto e sem dependências de servidor.
 
 A identidade exibida é **trvzera.**, incluindo apresentação, metadados e rodapé. O endereço do portfólio aponta para giovannitrivellato.com.br.
 
 ## Abrir localmente
 
-Use o Live Server do editor ou rode `python3 -m http.server 5500` na raiz. Abra `http://localhost:5500`.
+Use o Live Server do editor ou rode `python3 tools/serve.py` na raiz. Abra `http://127.0.0.1:8088`. O servidor incluído aceita as requisições simultâneas de imagens feitas pelo Lighthouse, evitando resets da fila pequena do servidor padrão do Python.
+
+Para editar CSS ou JavaScript, instale as ferramentas uma vez com `npm ci` e execute `npm run build` após as alterações. O build gera `css/site.min.css`, `js/main.min.js` e os módulos `.min.js`, além de atualizar o pequeno inicializador de tema embutido no HTML. O conteúdo de `index.html` continua editável diretamente. Os arquivos de origem permanecem legíveis.
 
 ## Editar conteúdo
 
@@ -18,6 +20,9 @@ Use o Live Server do editor ou rode `python3 -m http.server 5500` na raiz. Abra 
 - `js/components/photo-viewer.js`: visualização da foto completa do setup em um diálogo modal.
 - `js/vendor/`: player SVG local `lottie-web` 5.12.2 e sua licença MIT.
 - `js/transition-init.js`: aplica o tema salvo antes da primeira renderização.
+- `tools/build.mjs`: compacta CSS/JS com esbuild, sem incluir o player Lottie no carregamento inicial.
+- `tools/optimize-images.mjs`: gera imagens responsivas WebP e ícones a partir dos originais.
+- `tools/optimize-fonts.py`: gera as fontes WOFF2 com os caracteres latinos utilizados no site.
 
 As rotas antigas `about.html` e `produtos/` redirecionam para as seções da página inicial. O catálogo, os links de compra e sua lógica foram removidos. As fotos pessoais antigas não são carregadas. As capas de jogos, animes e músicas são reutilizadas nas seções de gostos.
 
@@ -38,10 +43,12 @@ As duas playlists estão em `music-section`, com links diretos para o Apple Musi
 
 - `img/giovanni1.jpeg`: perfil, com um recorte ampliado dentro do avatar quadrado.
 - `img/giovanni2.jpeg`: foto pessoal na seção sobre mim, em 4:5.
-- `img/setup.jpeg`: foto do setup. O card usa 16:9 e `object-position: 50% 76%` para destacar a mesa e os monitores da foto vertical.
+- `img/setup.jpeg`: original da foto do setup. A miniatura gerada reproduz o recorte 16:9 em `50% 76%` para destacar a mesa e os monitores da foto vertical.
 - `img/Frieren-2.jpg`: detalhe visual ao lado da introdução das tier lists, com tamanho menor no celular.
 
-Ao clicar no setup, um `<dialog>` nativo exibe a imagem inteira, sem recorte, ajustada à tela. O foco fica dentro do modal e volta para a foto ao fechar; a rolagem do fundo fica bloqueada. Feche pelo botão, por Escape ou clicando no fundo. As transições de 220 ms respeitam a preferência de movimento. Sem JavaScript ou suporte ao diálogo, o link abre diretamente a imagem. Para trocar a foto do setup, atualize o `href`, a miniatura e a imagem do diálogo no `index.html`.
+Os arquivos de `img/`, `jogos_img/`, `animes_img/` e `musicas_img/` são os originais. O site carrega as versões menores de `assets/images/`, com `srcset` para escolher a resolução adequada à tela. Após substituir uma foto ou capa, execute `npm run images`. Para uma nova foto de setup com outras dimensões, ajuste o recorte em `tools/optimize-images.mjs`.
+
+Ao clicar no setup, um `<dialog>` nativo baixa e exibe a imagem inteira, sem recorte, ajustada à tela. A versão completa não é requisitada durante a abertura da página. O foco fica dentro do modal e volta para a foto ao fechar; a rolagem do fundo fica bloqueada. Feche pelo botão, por Escape ou clicando no fundo. As transições de 220 ms respeitam a preferência de movimento. Sem JavaScript ou suporte ao diálogo, o link abre diretamente a imagem.
 
 ## Diretrizes de design
 
@@ -62,7 +69,7 @@ Setup, músicas, tier list, cards de títulos e botões das redes usam superfíc
 
 - **Hover e foco:** os links não exibem sublinhados nem linhas de pseudo-elementos. As transições de cor, fundo, borda e sombra usam 300 ms, com as propriedades declaradas no estado base para suavizar tanto a entrada quanto a saída. Os botões das redes sociais usam `ease`; o ícone sobe 3 px e cresce 4%, e o toque comprime a escala para 94%. As setas ficam em espaços fixos `.link-motion-icon`, com o Lottie dentro de `.lottie-stage`, sem deslocamento extra de CSS no hover ou foco. Nenhum card estático simula ser um botão.
 - **Voltar ao topo:** botão de vidro no canto inferior esquerdo, seguindo o portfólio. Aparece após rolar 65% da altura da tela; no celular, fica só com a seta. A entrada, saída e hover têm transição. Enquanto está oculto, não recebe foco ou cliques. O retorno usa a âncora `#inicio`, com rolagem suave quando as animações estão habilitadas.
-- **Blur no scroll:** `requestAnimationFrame` atualiza os elementos `data-reveal` conforme a posição real na tela. Ao entrar pelos 30% inferiores, eles passam de até 12 px de blur, 44 px de deslocamento e escala 0,975 para o tamanho natural e nitidez total; no celular, os limites são 8 px e 32 px. Ao sair pelo topo, o blur retorna de forma mais discreta. O efeito funciona ao descer e subir, quantas vezes você rolar, sem um temporizador que termine antes de o conteúdo aparecer. Uma curva `smoothstep` suaviza as duas extremidades. A área central permanece nítida; o foco por teclado mantém o bloco legível até ele sair da tela. Fora da tela ou em repouso na área de leitura, filtros e transformações são removidos. As medidas descontam o próprio movimento para evitar oscilações e são lidas em lote antes de atualizar estilos. Sem JavaScript, todos os elementos continuam visíveis.
+- **Blur no scroll:** `requestAnimationFrame` atualiza os elementos `data-reveal` conforme a posição real na tela. Ao entrar pelos 30% inferiores, eles passam de até 12 px de blur, 44 px de deslocamento e escala 0,975 para o tamanho natural e nitidez total; no celular, os limites são 8 px e 32 px. A opacidade permanece em 100% para preservar o contraste do texto, inclusive no tema escuro. Ao sair pelo topo, o blur retorna de forma mais discreta. O efeito funciona ao descer e subir, quantas vezes você rolar, sem um temporizador que termine antes de o conteúdo aparecer. Uma curva `smoothstep` suaviza as duas extremidades. A área central permanece nítida; o foco por teclado mantém o bloco legível até ele sair da tela. Fora da tela ou em repouso na área de leitura, filtros e transformações são removidos. As medidas descontam o próprio movimento para evitar oscilações e são lidas em lote antes de atualizar estilos. Sem JavaScript, todos os elementos continuam visíveis.
 - **Vidro do header:** `backdrop-filter: blur(20px)` desfoca o conteúdo atrás da barra. A preferência de reduzir transparência usa um fundo sólido.
 - **Painel flutuante:** o estado `data-open` controla transições CSS de opacidade e blur (220 ms) e deslocamento/escala (320 ms), a partir do canto inferior direito. Abrir ou fechar novamente no meio da transição inverte o movimento a partir da posição atual. Ao fechar, `inert` e `aria-hidden` bloqueiam a interação imediatamente; a visibilidade é removida depois da saída. O painel respeita a altura disponível e permite rolagem interna em telas baixas.
 - **Movimento reduzido:** a preferência do sistema e o controle no menu desativam o blur, o deslocamento da foto, as transições e os Lotties. As especificações do setup permanecem visíveis.
@@ -77,13 +84,40 @@ O controlador adapta a lógica do portfólio aos três arquivos locais:
 | `arrow.json` | `.link-motion-icon` nos links | Avançar no hover/foco, voltar ao sair |
 | `toggle.json` | `#motion-toggle`, dentro do menu | Anima ao ligar; azul quando ligado e cinza estático ao desativar |
 
-A biblioteca local é carregada uma única vez quando as animações estão habilitadas. Cada JSON é buscado uma vez e clonado para criar instâncias SVG independentes, com `loop: false`, `autoplay: false` e velocidade 1,5. As setas avançam no hover/foco por teclado e voltam somente quando ambos terminam, continuando do frame atual. Toque não ativa um hover permanente. Os SVGs de seta e menu herdam a cor do controle, inclusive no tema escuro; a seta é orientada para baixo, para cima ou na diagonal conforme o link.
+O módulo Lottie só é solicitado na primeira interação por ponteiro ou teclado. A biblioteca local é carregada uma única vez quando as animações estão habilitadas; os controles e seus fallbacks funcionam imediatamente. Cada JSON é buscado uma vez e clonado para criar instâncias SVG independentes, com `loop: false`, `autoplay: false` e velocidade 1,5. As setas avançam no hover/foco por teclado e voltam somente quando ambos terminam, continuando do frame atual. Toque não ativa um hover permanente. Os SVGs de seta e menu herdam a cor do controle, inclusive no tema escuro; a seta é orientada para baixo, para cima ou na diagonal conforme o link.
 
 O arquivo atual `arrow.json` tem caminhos de seta para a direita com rotação de −45°, apontando para cima à direita. O atributo `data-arrow-direction` informa o destino exato: `down` gira +135°, `up` gira −45° e `up-right` mantém 0°. A rotação fica em `.lottie-stage` e permanece constante durante o hover; os fallbacks usam ↓, ↑ e ↗ respectivamente. CSS também define os outros cinco sentidos para reutilizar o mesmo arquivo.
 
 O evento `DOMLoaded` marca o ícone com `data-animation-ready` e revela o SVG; antes disso, ou em caso de falha, o fallback HTML/SVG/CSS continua visível. Desativar movimento destrói as instâncias imediatamente; reativar as recria com os arquivos em cache. Em segundo plano, a reprodução é pausada. `pagehide` destrói as instâncias, e `pageshow` permite recriá-las ao voltar pelo histórico. O player cuida dos ícones; o blur da rolagem permanece independente. Referência: [API oficial do lottie-web](https://github.com/airbnb/lottie-web/wiki/Usage).
 
 O futuro Lottie de tema pode ocupar `.theme-motion-icon` no botão `#theme-toggle`. Os ícones atuais de sol e lua indicam o tema selecionado até esse arquivo ser fornecido.
+
+## Lighthouse
+
+Auditoria local de 07/10/2026, com Lighthouse 13.5.0 e Chrome 154 headless. Foram usados o perfil mobile padrão e `--preset=desktop`, com o throttling simulado padrão de cada perfil, sem excluir auditorias. Uma segunda execução mobile confirmou as notas.
+
+| Categoria | Mobile | Desktop |
+| --- | ---: | ---: |
+| Desempenho | 100 | 100 |
+| Acessibilidade | 100 | 100 |
+| Boas práticas | 100 | 100 |
+| SEO | 100 | 100 |
+| Agentic Browsing | 100 | 100 |
+
+Relatórios completos: [mobile](reports/lighthouse/mobile.html) e [desktop](reports/lighthouse/desktop.html). Os JSONs correspondentes estão na mesma pasta. O LCP medido foi 1,7 s no mobile e 0,4 s no desktop; ambos tiveram TBT de 0 ms, CLS de 0 e nenhum erro de console.
+
+As melhorias incluem imagens WebP responsivas, foto completa do setup carregada ao abrir, fontes SF Pro em WOFF2 com os caracteres utilizados, CSS em um único arquivo compacto, JavaScript compactado e Lotties carregados na primeira interação. A paleta, tipografia, vidro e blur de rolagem são preservados; o scroll mantém opacidade total para não reduzir o contraste do texto.
+
+Para repetir, inicie `python3 tools/serve.py` e execute em outro terminal:
+
+```sh
+npx lighthouse@13.5.0 http://127.0.0.1:8088/ --chrome-flags="--headless" --output=html --output-path=/tmp/trvzera-mobile.html
+npx lighthouse@13.5.0 http://127.0.0.1:8088/ --preset=desktop --chrome-flags="--headless" --output=html --output-path=/tmp/trvzera-desktop.html
+```
+
+As notas descrevem esta medição local. A hospedagem, a versão do navegador e as condições da execução podem alterar os resultados. O servidor local não aplica compressão HTTP ou cache persistente; esses avisos continuam nos relatórios sem impedir as notas 100. Na publicação, configure compressão Brotli/gzip e cache conforme os recursos da hospedagem, permitindo revalidar os arquivos quando forem atualizados.
+
+As fontes otimizadas podem ser recriadas com `python tools/optimize-fonts.py` em um ambiente com `fonttools[woff]` instalado. O script conserva os desenhos, métricas, kerning e metadados de licença; também verifica os caracteres usados no HTML/JS. Os OTFs originais continuam no projeto.
 
 ## Referências dos novos títulos
 

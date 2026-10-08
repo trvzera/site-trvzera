@@ -11,23 +11,9 @@
   <link rel="apple-touch-icon" href="assets/images/apple-touch-icon.png" sizes="180x180">
   <link rel="preload" href="fonts/sf-pro-display-regular.woff2" as="font" type="font/woff2" crossorigin>
   <link rel="preload" href="fonts/sf-pro-display-bold.woff2" as="font" type="font/woff2" crossorigin>
-  <script>
-// Restore appearance before the first paint. No loading screen or navigation delay.
-(() => {
-  let theme;
-  let motion;
-  try {
-    theme = localStorage.getItem('theme');
-    motion = localStorage.getItem('motion');
-  } catch { /* Storage can be unavailable in private or restricted browsing. */ }
-  const dark = theme ? theme === 'dark' : window.matchMedia('(prefers-color-scheme: dark)').matches;
-  document.documentElement.dataset.theme = dark ? 'dark' : 'light';
-  if (motion === 'off') document.documentElement.dataset.motion = 'off';
-})();
-  </script>
-  <link rel="stylesheet" href="css/design.css">
-  <link rel="stylesheet" href="css/index.css">
-  <script src="js/main.js" defer></script>
+  <script id="theme-init">(()=>{let e,t;try{e=localStorage.getItem("theme"),t=localStorage.getItem("motion")}catch{}const o=e?e==="dark":window.matchMedia("(prefers-color-scheme: dark)").matches;document.documentElement.dataset.theme=o?"dark":"light",t==="off"&&(document.documentElement.dataset.motion="off")})();</script>
+  <link rel="stylesheet" href="css/site.min.css">
+  <script src="js/main.min.js" defer></script>
 </head>
 <body>
   <a class="skip-link" href="#conteudo">Pular para o conteúdo</a>
@@ -131,7 +117,7 @@
     <section class="about-section content-width" id="sobre" aria-labelledby="about-title">
       <div class="section-heading" data-reveal><p class="eyebrow">ALÉM DOS LINKS</p><h2 id="about-title">Um pouco sobre mim.</h2></div>
       <div class="about-grid">
-        <img class="photo-portrait" data-reveal src="assets/images/portrait-480.webp" srcset="assets/images/portrait-240.webp 240w, assets/images/portrait-480.webp 480w, assets/images/portrait-768.webp 768w" sizes="(max-width: 320px) calc(100vw - 40px), (max-width: 680px) 280px, 240px" alt="trvzera. em frente a uma parede de pedras" width="768" height="1024" loading="lazy" decoding="async">
+        <img class="photo-portrait" data-reveal src="assets/images/portrait-480.webp" srcset="assets/images/portrait-240.webp 240w, assets/images/portrait-480.webp 480w, assets/images/portrait-560.webp 560w, assets/images/portrait-768.webp 768w" sizes="(max-width: 320px) calc(100vw - 40px), (max-width: 680px) 280px, 240px" alt="trvzera. em frente a uma parede de pedras" width="768" height="1024" loading="lazy" decoding="async">
         <div class="about-copy" data-reveal>
           <h3>Oi, eu sou o trvzera.</h3>
           <p>Tenho 18 anos e sou de Belo Horizonte, MG. Gosto de misturar código, design e movimento em tudo que crio.</p>
